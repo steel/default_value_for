@@ -165,7 +165,11 @@ module DefaultValueFor
         # allow explicitly setting nil through allow nil option
         next if @initialization_attributes.is_a?(Hash) && @initialization_attributes.has_key?(attribute) && !self.class._all_default_attribute_values_not_allowing_nil.include?(attribute)
 
-        __send__("#{attribute}=", container.evaluate(self))
+        # Lets not override any values we've set already. Only set the value if it hasn't already been set.
+        if __send__(attribute).nil?
+          __send__("#{attribute}=", container.evaluate(self))
+        end
+
         changed_attributes.delete(attribute)
       end
     end
